@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plotting Graphs Using Seaborn</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(0, 0, 33);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgb(18, 18, 62);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #e6edf3;
+            font-family: 'Times New Roman', Times, serif;
+            animation: fadeInDown 1.5s ease-in-out;
+        }
+        .section {
+            margin-bottom: 20px;
+            animation: fadeInUp 1.5s ease-in-out;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        p {
+            color: white;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .graph-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .graph-selector select {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .visualization-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .visualization-container img {
+            max-width: 100%;
+            width: 400px;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .visualization-container img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .graph-description {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
+            color: #ddd;
+        }
+         /* Scroll to Top Button */
+         .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            background-color: #ff8c00;
+        }
+
+        .scroll-to-top.visible {
+            display: block;
+        }
+         /* Scroll to Top Button */
+         .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            background-color: #ff8c00;
+        }
+
+        .scroll-to-top.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plotting Various Graphs Using Seaborn</h1>
+        <div class="section">
+            <h2>Project Overview</h2>
+            <p>This project demonstrates how to use Seaborn, a Python visualization library, to create various types of plots to analyze and visualize data.</p>
+        </div>
+        <div class="section">
+            <h2>Seaborn Features</h2>
+            <ul>
+                <li><strong>Integrated with Matplotlib:</strong> Seaborn is built on top of Matplotlib, making it easy to create high-level visualizations.</li>
+                <li><strong>Built-in Datasets:</strong> Seaborn comes with several built-in datasets, making it easy to practice visualizations.</li>
+                <li><strong>Color Palettes:</strong> Seaborn offers an intuitive way to manage colors in plots.</li>
+            </ul>
+        </div>
+        <h2>My Seaborn Visualizations</h2>
+        <p>Below are some of the visualizations I've created using Seaborn to analyze and present data insights.</p>
+        
+        <div class="graph-selector">
+            <label for="graphDropdown">Select a Graph Type:</label>
+            <select id="graphDropdown">
+                <option value="img1.png" data-desc="A heatmap visualizes correlations between variables using color intensity, making it easier to spot relationships in data.">Heatmap</option>
+                <option value="img2.png" data-desc="A pairplot is used to visualize pairwise relationships in a dataset, combining scatter plots and histograms.">Pairplot</option>
+                <option value="img3.png" data-desc="A violin plot shows the distribution of a dataset across different categories, combining aspects of box plots and density plots.">Violin Plot</option>
+            </select>
+        </div>
+        
+        <div class="visualization-container">
+            <img id="graphImage" src="img1.png" alt="Selected Graph">
+            <p id="graphDescription" class="graph-description">A heatmap visualizes correlations between variables using color intensity, making it easier to spot relationships in data.</p>
+        </div>
+        
+        <div class="section">
+            <h2>Timeline</h2>
+            <ul>
+                <li>Week 1: Explore different Seaborn plots and their use cases.</li>
+                <li>Week 2: Implement visualizations for dataset analysis.</li>
+                <li>Week 3: Review and refine the visualizations based on feedback.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+    <script>
+        document.getElementById("graphDropdown").addEventListener("change", function() {
+            const selectedOption = this.options[this.selectedIndex];
+            document.getElementById("graphImage").src = selectedOption.value;
+            document.getElementById("graphDescription").textContent = selectedOption.getAttribute("data-desc");
+        });
+    </script>
+      <!-- Scroll to Top Button -->
+      <button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+      <script>
+          // Scroll to top button functionality
+          const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+  
+          window.onscroll = function() {
+              if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                  scrollToTopBtn.classList.add("visible");
+              } else {
+                  scrollToTopBtn.classList.remove("visible");
+              }
+          };
+  
+          scrollToTopBtn.onclick = function() {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+      </script>
+</body>
+</html>

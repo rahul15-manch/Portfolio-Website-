@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workforce Dynamics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(0, 0, 33);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgb(18, 18, 62);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #e6edf3;
+            font-family: 'Times New Roman', Times, serif;
+            animation: fadeInDown 1.5s ease-in-out;
+        }
+        .section {
+            margin-bottom: 20px;
+            animation: fadeInUp 1.5s ease-in-out;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            color: white;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        p {
+            color: white;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll to Top Button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            background-color: #ff8c00;
+        }
+
+        .scroll-to-top.visible {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Workforce Dynamics</h1>
+        <div class="section">
+            <h2>Project Overview</h2>
+            <p>This project aims to analyze workforce trends, employee performance, and organizational behavior to uncover insights that can enhance HR strategies. By leveraging data analytics techniques, we will identify patterns related to employee engagement, retention, and productivity to optimize workforce management and development.</p>
+        </div>
+        <div class="section">
+            <h2>Objectives</h2>
+            <ul>
+                <li>Understand employee demographics and workforce segmentation.</li>
+                <li>Identify factors influencing employee performance and productivity.</li>
+                <li>Analyze employee retention rates and factors affecting loyalty.</li>
+                <li>Provide actionable insights to improve HR policies and employee engagement strategies.</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>Data Sources</h2>
+            <p>Data will include employee performance reviews, compensation details, training records, employee satisfaction surveys, and organizational structure information.</p>
+        </div>
+        <div class="section">
+            <h2>Methodology</h2>
+            <ul>
+                <li><strong>Data Collection:</strong> Aggregate HR data from various internal sources.</li>
+                <li><strong>Data Cleaning:</strong> Address missing values, duplicates, and outliers.</li>
+                <li><strong>Exploratory Data Analysis (EDA):</strong> Visualize workforce trends and patterns.</li>
+                <li><strong>Employee Segmentation:</strong> Apply clustering algorithms to identify distinct employee groups.</li>
+                <li><strong>Predictive Modeling:</strong> Build models to predict employee turnover and performance.</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>Key Deliverables</h2>
+            <ul>
+                <li>Interactive dashboard showcasing employee insights and trends.</li>
+                <li>Comprehensive report highlighting key findings and actionable recommendations.</li>
+                <li>Strategic recommendations for improving HR policies and employee engagement initiatives.</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>Timeline</h2>
+            <ul>
+                <li>Week 1-2: Data collection and preprocessing.</li>
+                <li>Week 3: Exploratory Data Analysis and trend identification.</li>
+                <li>Week 4: Employee segmentation and predictive modeling.</li>
+                <li>Week 5: Dashboard creation and final report preparation.</li>
+            </ul>
+            <div class="section">
+                <h2> Project Video </h2>
+                <p>You can View the project file here:</p>
+                <a href="C:\Users\OASIS\Videos\Captures\hr analytics - Google Chrome 2024-09-10 19-04-44.mp4" download="Workforce_Dynamics_Project">View  Project</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+    <script>
+        // Scroll to top button functionality
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                scrollToTopBtn.classList.add("visible");
+            } else {
+                scrollToTopBtn.classList.remove("visible");
+            }
+        };
+
+        scrollToTopBtn.onclick = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
+

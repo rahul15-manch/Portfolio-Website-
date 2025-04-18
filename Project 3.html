@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Portfolio - Project Showcase</title>
+    <style>
+       body {
+    font-family: 'Poppins', Arial, sans-serif;
+    background-color: #0d0d2b; /* Deep navy for a modern look */
+    color: #e6edf3;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #12123e;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+h1, h2, h3 {
+    color: #e6edf3;
+    font-weight: 600;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    animation: fadeInDown 1.5s ease-in-out;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-top: 20px;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-top: 15px;
+}
+
+.project {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 6px 15px rgba(255, 255, 255, 0.2);
+}
+
+.project p {
+    color: #b2bec3;
+    font-size: 1rem;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+ul li {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+a {
+    display: inline-block;
+    color: #00c3ff;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #ff8c00;
+    text-decoration: underline;
+}
+.project ul li {
+    animation: fadeIn 1.5s ease-in-out, flipFade 3s ease-in-out infinite;
+}
+
+.project ul li {
+    animation: fadeIn 2s ease-in-out, flipFade 6s ease-in-out infinite; /* Increased duration */
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes flipFade {
+    0% {
+        transform: rotateX(0deg);
+        opacity: 0.5;
+    }
+    40% {
+        transform: rotateX(90deg);
+        opacity: 1;
+    }
+    60% {
+        transform: rotateX(270deg);
+        opacity: 1;
+    }
+    100% {
+        transform: rotateX(360deg);
+        opacity: 0.5;
+    }
+}
+
+
+
+/* Scroll to Top Button */
+.scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #6a5acd;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: none;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.scroll-to-top:hover {
+    background-color: #ff8c00;
+    transform: scale(1.1);
+}
+
+.scroll-to-top.visible {
+    display: block;
+    opacity: 1;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Portfolio</h1>
+        
+        <!-- Project 3 -->
+        <div class="project">
+            <h2>Project 3: Blinkit Dashboard - Power BI</h2>
+            <h3>Overview</h3>
+            <p>This project involves the creation of an interactive Power BI dashboard for Blinkit. It provides comprehensive insights into sales, customer behavior, and operational metrics, helping stakeholders optimize business performance.</p>
+            <h3>Key Features</h3>
+            <ul>
+                <li>Total Sales & Revenue Trends: Track revenue growth over time.</li>
+                <li>Customer Purchase Behavior: Analyze user preferences and buying patterns.</li>
+                <li>Top Selling Items: Identify high-demand products.</li>
+                <li>Outlet Performance Analysis: Evaluate sales by different locations.</li>
+                <li>Ratings & Customer Feedback: Gain insights into customer satisfaction and reviews.</li>
+            </ul>
+            <h3>Link to the Project</h3>
+            <p>Explore the interactive Power BI dashboard here:</p>
+            <a href="C:\Users\OASIS\Videos\Captures\blinkitfinalproject[1] [Read-Only] - Power BI Desktop 2024-08-23 17-45-53.mp4" target="_blank">View Project</a>
+        </div>
+        
+      
+
+        
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+    <script>
+        // Scroll to top button functionality
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                scrollToTopBtn.classList.add("visible");
+            } else {
+                scrollToTopBtn.classList.remove("visible");
+            }
+        };
+
+        scrollToTopBtn.onclick = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        };
+    </script>
+    
+</body>
+</html>
+
+
+
