@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL Win Predictor | My Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(0, 0, 33);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgb(18, 18, 62);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #e6edf3;
+            font-family: 'Times New Roman', Times, serif;
+            animation: fadeInDown 1.5s ease-in-out;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #e6edf3;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        p {
+            color: white;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            color: white;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 20px;
+            background-color:  #6a5acd;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #ce76ef;
+        }
+        .features {
+            margin-top: 20px;
+        }
+        .features li {
+            margin-bottom: 10px;
+        }
+        /* Scroll to Top Button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            background-color: #ff8c00;
+        }
+
+        .scroll-to-top.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏏 IPL Win Predictor</h1>
+    <p class="tagline">Predict the winning probabilities of IPL matches live — ball by ball!</p>
+
+    <p><strong>Tech Stack:</strong> Python, Streamlit, Machine Learning (Logistic Regression), Sklearn, Pandas, IPL dataset</p>
+
+    <h2>📈 Key Features:</h2>
+    <ul class="features">
+        <li>Predicts real-time win/lose probabilities for batting teams</li>
+        <li>Beautiful Streamlit web app interface</li>
+        <li>Trained on past IPL matches data</li>
+        <li>Includes Ball-by-ball, Over-by-over match progression</li>
+        <li>Used OneHotEncoding and Logistic Regression Pipeline</li>
+    </ul>
+
+    <h2>🚀 How it Works:</h2>
+    <p>
+        The model uses live match stats like runs left, balls left, wickets remaining, and the required run rate to predict 
+        the probability of winning for the batting team. The backend ML model is trained on thousands of IPL deliveries!
+    </p>
+
+    <h2>🔗 Project Demo:</h2>
+    <a href="https://ipl-prediction-app-jnqcdr3th4ywbg7mnj6ums.streamlit.app/" target="_blank" class="btn">View Live App</a>
+
+    <h2>🛠️ Code Repository:</h2>
+    <a href="https://github.com/rahul15-manch/ipl-prediction-app" target="_blank" class="btn">View Code on GitHub</a>
+
+    <img src="C:\Users\OASIS\Desktop\portfolio\Screenshot (131).png" alt="IPL Win Predictor Screenshot">
+
+</div>
+<!-- Scroll to Top Button -->
+<button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+<script>
+    document.getElementById("graphDropdown").addEventListener("change", function() {
+        const selectedOption = this.options[this.selectedIndex];
+        document.getElementById("graphImage").src = selectedOption.value;
+        document.getElementById("graphDescription").textContent = selectedOption.getAttribute("data-desc");
+    });
+</script>
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+  <script>
+      // Scroll to top button functionality
+      const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+      window.onscroll = function() {
+          if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+              scrollToTopBtn.classList.add("visible");
+          } else {
+              scrollToTopBtn.classList.remove("visible");
+          }
+      };
+
+      scrollToTopBtn.onclick = function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+  </script>
+
+</body>
+</html>
