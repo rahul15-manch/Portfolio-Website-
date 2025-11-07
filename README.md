@@ -10,11 +10,29 @@ Welcome to my personal portfolio website! This site showcases my work, projects,
 - 📫 Contact information and social links
 - 📱 Fully responsive design
 - 📊 Dashboard and data analysis showcase (Blinkit Project, etc.)
+## 🔧 Built With
 
-  ## 🔧 Built With
+<table>
+  <tr>
+    <td align="center" width="140">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original-wordmark.svg" width="70" height="70"><br>
+      <b>HTML5</b>
+    </td>
+    <td align="center" width="140">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original-wordmark.svg" width="70" height="70"><br>
+      <b>CSS3</b>
+    </td>
+    <td align="center" width="140">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="70" height="70"><br>
+      <b>JavaScript</b>
+    </td>
+    <td align="center" width="140">
+      <img src="https://cdn.simpleicons.org/netlify/00C7B7" width="70" height="70"><br>
+      <b>Netlify</b>
+    </td>
+  </tr>
+</table>
 
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Deployment**:  Netlify
 
-- ## 📸 Preview
+## 📸 Preview
 - Live Link : https://682b6ced9ee10387f935d564--papaya-medovik-0dab34.netlify.app/#projects
