@@ -10,20 +10,30 @@ import {
   ArrowUpRight,
   Sparkles,
   Send,
+  Languages,
 } from 'lucide-react';
 import { portfolioData } from '../data/portfolioData';
 
-// Preset sample queries for easy one-click testing
-const QUICK_PROMPTS = [
+// Preset sample queries in English & Hindi for easy one-click testing
+const QUICK_PROMPTS_EN = [
   'What did you build at CyberNauts?',
   'How does your real-time voice pipeline work?',
   'What AI models and tools do you specialize in?',
 ];
 
+const QUICK_PROMPTS_HI = [
+  'आपने CyberNauts में क्या बनाया?',
+  'आपका रियल-टाइम वॉयस पाइपलाइन कैसे काम करता है?',
+  'आप किन AI और ML टूल्स में माहिर हैं?',
+];
+
 export default function Experience() {
   const exp = portfolioData.experience[0];
 
-  // Pipeline stage: 0 = Idle, 1 = User Speaks, 2 = Deepgram STT, 3 = Qwen Reasoning, 4 = Cartesia TTS, 5 = AI Responds
+  // Language mode: 'en-IN' (English) or 'hi-IN' (Hindi)
+  const [language, setLanguage] = useState('en-IN');
+
+  // Pipeline stage: 0 = Idle, 1 = User Speaks, 2 = Deepgram STT, 3 = Qwen Reasoning, 4 = Sarvam TTS, 5 = AI Responds
   const [activeStage, setActiveStage] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -41,41 +51,61 @@ export default function Experience() {
 
   const recognitionRef = useRef(null);
   const processInputRef = useRef(null);
+  const audioRef = useRef(null);
 
-  // Browser-based Voice Synthesis
-  const speakText = useCallback(
-    (text, onFinish) => {
-      if (!voiceEnabled || !('speechSynthesis' in window)) {
+  // Stop any currently playing audio or speech
+  const stopAllAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  };
+
+  // Browser-based Voice Synthesis Fallback
+  const speakWithBrowserVoice = useCallback(
+    (text, targetLang, onFinish) => {
+      if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) {
         if (onFinish) onFinish();
         return;
       }
 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.05;
-      utterance.pitch = 1.0;
+      utterance.rate = 1.0;
+      utterance.pitch = 1.1; // slightly higher pitch for natural female tone
+      utterance.lang = targetLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
 
-      // Pick a clean English voice if available
       const voices = window.speechSynthesis.getVoices();
-      const englishVoice =
+      // Try finding an appropriate female voice in the target language
+      const matchVoice =
         voices.find(
           (v) =>
-            v.lang.startsWith('en') &&
-            (v.name.includes('Natural') ||
+            v.lang.startsWith(targetLang.slice(0, 2)) &&
+            (v.name.includes('Female') ||
               v.name.includes('Google') ||
               v.name.includes('Samantha') ||
-              v.name.includes('Daniel') ||
-              v.name.includes('Karen'))
-        ) || voices.find((v) => v.lang.startsWith('en'));
+              v.name.includes('Kavya') ||
+              v.name.includes('Zira') ||
+              v.name.includes('Lekha'))
+        ) || voices.find((v) => v.lang.startsWith(targetLang.slice(0, 2)));
 
-      if (englishVoice) {
-        utterance.voice = englishVoice;
+      if (matchVoice) {
+        utterance.voice = matchVoice;
       }
 
       utterance.onstart = () => {
         setIsSpeaking(true);
-        setActiveStage(5); // AI Responding
-        setStatusText('Cartesia TTS -> Audio output streaming...');
+        setActiveStage(5);
+        setStatusText(
+          targetLang === 'hi-IN'
+            ? 'एआई वॉयस आउटपुट (Browser Hindi)...'
+            : 'AI Voice Output (Browser English)...'
+        );
       };
 
       utterance.onend = () => {
@@ -97,6 +127,97 @@ export default function Experience() {
     [voiceEnabled]
   );
 
+  // Sarvam AI Text-to-Speech with Female Voice (Priya)
+  const speakWithSarvam = useCallback(
+    async (text, targetLang, onFinish) => {
+      if (!voiceEnabled) {
+        if (onFinish) onFinish();
+        return;
+      }
+
+      stopAllAudio();
+
+      const sarvamKey = import.meta.env.VITE_SARVAM_API_KEY || '';
+
+      if (!sarvamKey) {
+        speakWithBrowserVoice(text, targetLang, onFinish);
+        return;
+      }
+
+      try {
+        setActiveStage(4);
+        setStatusText(
+          targetLang === 'hi-IN'
+            ? 'सर्वम एआई (प्रिया वॉयस) - ऑडियो तैयार हो रहा है...'
+            : 'Sarvam AI (Priya Female Voice) - Generating audio...'
+        );
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+        const response = await fetch('https://api.sarvam.ai/text-to-speech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'api-subscription-key': sarvamKey,
+          },
+          body: JSON.stringify({
+            inputs: [text.slice(0, 500)],
+            target_language_code: targetLang === 'hi-IN' ? 'hi-IN' : 'en-IN',
+            speaker: 'priya', // Warm natural female voice
+            model: 'bulbul:v3',
+            pitch: 0,
+            pace: 1.05,
+            loudness: 1.5,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          const base64Audio = data.audios?.[0];
+
+          if (base64Audio) {
+            const audio = new Audio(`data:audio/wav;base64,${base64Audio}`);
+            audioRef.current = audio;
+
+            audio.onplay = () => {
+              setIsSpeaking(true);
+              setActiveStage(5);
+              setStatusText(
+                targetLang === 'hi-IN'
+                  ? 'सर्वम एआई (प्रिया वॉयस): हिंदी ऑडियो स्ट्रीमिंग...'
+                  : 'Sarvam AI (Priya Voice): Female voice streaming...'
+              );
+            };
+
+            audio.onended = () => {
+              setIsSpeaking(false);
+              setActiveStage(0);
+              setStatusText('Ready for next conversation');
+              if (onFinish) onFinish();
+            };
+
+            audio.onerror = () => {
+              // Fallback to browser voice if audio element playback fails
+              speakWithBrowserVoice(text, targetLang, onFinish);
+            };
+
+            await audio.play();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Sarvam TTS failed, falling back to browser voice:', err);
+      }
+
+      // Fallback
+      speakWithBrowserVoice(text, targetLang, onFinish);
+    },
+    [voiceEnabled, speakWithBrowserVoice]
+  );
+
   // Initialize SpeechRecognition on mount if available
   useEffect(() => {
     const SpeechRecognition =
@@ -106,12 +227,16 @@ export default function Experience() {
       const rec = new SpeechRecognition();
       rec.continuous = false;
       rec.interimResults = false;
-      rec.lang = 'en-US';
+      rec.lang = language === 'hi-IN' ? 'hi-IN' : 'en-US';
 
       rec.onstart = () => {
         setIsListening(true);
         setActiveStage(1);
-        setStatusText('Listening to audio input...');
+        setStatusText(
+          language === 'hi-IN'
+            ? 'ऑडियो इनपुट सुन रहे हैं (Hindi)...'
+            : 'Listening to audio input (English)...'
+        );
       };
 
       rec.onresult = (event) => {
@@ -139,28 +264,38 @@ export default function Experience() {
     }
 
     return () => {
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      stopAllAudio();
     };
-  }, []);
+  }, [language]);
 
-  // Local Qwen Fallback Intelligence
-  const getQwenFallback = (query) => {
+  // Local Qwen Fallback Intelligence in both English and Hindi
+  const getQwenFallback = (query, lang) => {
     const q = query.toLowerCase();
-    if (q.includes('cybernauts') || q.includes('intern') || q.includes('flowise')) {
-      return "At CyberNauts, I built an event-driven AI orchestration framework using FastAPI and Pipecat to execute DAG voice pipelines with ultra-low latency.";
+
+    if (lang === 'hi-IN') {
+      if (q.includes('cybernauts') || q.includes('साइबरनॉट्स') || q.includes('काम') || q.includes('प्रोजेक्ट')) {
+        return 'मैंने साइबरनॉट्स में फास्टएपीआई और पाइपकेट के साथ लो-लेटेंसी रियल-टाइम वॉयस आर्केस्ट्रेशन फ्रेमवर्क विकसित किया है।';
+      }
+      if (q.includes('pipeline') || q.includes('पाइपलाइन') || q.includes('आवाज') || q.includes('voice')) {
+        return 'यह वॉयस सिस्टम डीपग्राम से स्पीच-टू-टेक्स्ट, ग्रोक एलएलएम से प्रोसेसिंग और सर्वम एआई से 300 मिलीसेकंड में आवाज उत्पन्न करता है।';
+      }
+      if (q.includes('skill') || q.includes('टूल') || q.includes('मॉडल') || q.includes('stack')) {
+        return 'मैं मशीन लर्निंग, जनरेटिव एआई, लैंगचेन, फास्टएपीआई और डॉकर जैसे आधुनिक टूल्स में विशेषज्ञता रखता हूँ।';
+      }
+      return 'नमस्ते! मैं राहुल मनचंदा का एआई प्रतिनिधि हूँ। आप मुझसे राहुल के अनुभव, प्रोजेक्ट्स या टेक्निकल स्किल्स के बारे में पूछ सकते हैं।';
     }
-    if (q.includes('pipeline') || q.includes('voice') || q.includes('deepgram') || q.includes('cartesia')) {
-      return "The voice pipeline streams incoming audio through Deepgram for transcription, reasons with Groq and Qwen LLMs, and synthesizes audio via Cartesia in under 300ms.";
+
+    // English Fallbacks
+    if (q.includes('cybernauts') || q.includes('intern') || q.includes('flowise')) {
+      return 'At CyberNauts, I built an event-driven AI orchestration framework using FastAPI and Pipecat to execute DAG voice pipelines with ultra-low latency.';
+    }
+    if (q.includes('pipeline') || q.includes('voice') || q.includes('deepgram') || q.includes('cartesia') || q.includes('sarvam')) {
+      return 'The voice pipeline streams incoming audio through Deepgram for transcription, reasons with Groq Qwen LLM, and synthesizes speech via Sarvam AI in under 300ms.';
     }
     if (q.includes('model') || q.includes('tool') || q.includes('tech') || q.includes('stack')) {
-      return "I specialize in Generative AI architectures, LangChain, FastAPI, Docker, and fine-tuned open-source models like Qwen 2.5 and LLaMA.";
+      return 'I specialize in Generative AI architectures, LangChain, FastAPI, Docker, and fine-tuned open-source models like Qwen and LLaMA.';
     }
-    if (q.includes('project') || q.includes('work')) {
-      return "My core projects include CareStance for career AI guidance, HireWise for automated resume intelligence, and network security threat classification.";
-    }
-    return `As an AI Engineer, I develop real-time LLM architectures and scalable backend microservices with Python, FastAPI, and Qwen AI models.`;
+    return 'As an AI Engineer, I develop real-time LLM architectures and scalable backend microservices with Python, FastAPI, and modern AI models.';
   };
 
   // Process user input through the 5-stage pipeline
@@ -169,15 +304,28 @@ export default function Experience() {
 
     // Stage 2: Deepgram Speech-to-Text simulation / confirmation
     setActiveStage(2);
-    setStatusText('Deepgram: Processing speech to text...');
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    setStatusText(
+      language === 'hi-IN'
+        ? 'Deepgram: स्पीच-टू-टेक्स्ट ट्रांसक्रिप्शन...'
+        : 'Deepgram: Processing speech to text...'
+    );
+    await new Promise((resolve) => setTimeout(resolve, 450));
 
-    // Stage 3: Groq Qwen Model Reasoning
+    // Stage 3: Groq / Sarvam Qwen Model Reasoning
     setActiveStage(3);
-    setStatusText('Groq LPU: Qwen 3.8-27B reasoning at ultra-low latency...');
+    setStatusText(
+      language === 'hi-IN'
+        ? 'Groq Qwen LLM: हिंदी में उत्तर तैयार हो रहा है...'
+        : 'Groq LPU: Qwen 3.8-27B reasoning at ultra-low latency...'
+    );
 
     let generatedResponse = '';
     const groqKey = import.meta.env.VITE_GROQ_API_KEY || '';
+
+    const systemPrompt =
+      language === 'hi-IN'
+        ? 'You are the personal AI assistant for Rahul Manchanda, an aspiring AI Engineer skilled in Machine Learning and real-time voice orchestration. Rahul interned at CyberNauts on the Flowise Project. Answer the user in clear, natural, friendly Hindi in 1-2 short spoken sentences.'
+        : 'You are the personal AI representative for Rahul Manchanda, an aspiring AI Engineer specializing in Machine Learning, Generative AI, and AI backend engineering. Rahul interned at CyberNauts on the Flowise project, building modular real-time AI orchestration pipelines with FastAPI, Pipecat, Groq LLM, and Sarvam AI. Answer directly in 1 or 2 concise, spoken sentences suitable for voice output.';
 
     try {
       if (groqKey) {
@@ -193,14 +341,10 @@ export default function Experience() {
           body: JSON.stringify({
             model: 'qwen/qwen3.8-27b',
             messages: [
-              {
-                role: 'system',
-                content:
-                  'You are the personal AI representative for Rahul Manchanda, an aspiring AI Engineer specializing in Machine Learning, Generative AI, and AI backend engineering. Rahul interned at CyberNauts on the Flowise project, building modular real-time AI orchestration pipelines with FastAPI, Pipecat, Groq LLM, Cartesia TTS, and Deepgram STT. Answer directly in 1 or 2 concise, spoken sentences suitable for voice output.',
-              },
+              { role: 'system', content: systemPrompt },
               { role: 'user', content: text },
             ],
-            max_tokens: 100,
+            max_tokens: 110,
             temperature: 0.7,
           }),
           signal: controller.signal,
@@ -224,7 +368,7 @@ export default function Experience() {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
-        const prompt = `System: You are Rahul Manchanda's AI assistant. User asked: "${text}". Give a 1-2 sentence spoken response.`;
+        const prompt = `${systemPrompt} User asked: "${text}". Give a 1-2 sentence spoken response.`;
         const res = await fetch(
           `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=qwen&seed=42`,
           { signal: controller.signal }
@@ -237,23 +381,27 @@ export default function Experience() {
           }
         }
       } catch {
-        generatedResponse = getQwenFallback(text);
+        generatedResponse = getQwenFallback(text, language);
       }
     }
 
     if (!generatedResponse) {
-      generatedResponse = getQwenFallback(text);
+      generatedResponse = getQwenFallback(text, language);
     }
 
     setAiResponse(generatedResponse);
 
-    // Stage 4: Cartesia TTS preparation
+    // Stage 4: Sarvam AI Female Voice TTS
     setActiveStage(4);
-    setStatusText('Cartesia: Generating low-latency neural speech...');
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    setStatusText(
+      language === 'hi-IN'
+        ? 'सर्वम एआई (प्रिया वॉयस): न्यूरल ऑडियो जेनरेशन...'
+        : 'Sarvam AI (Priya Female Voice): Generating neural speech...'
+    );
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
-    // Stage 5: AI Responds (Browser-based voice speaking)
-    speakText(generatedResponse);
+    // Stage 5: AI Responds (Speaking aloud via Sarvam Priya Voice)
+    speakWithSarvam(generatedResponse, language);
   };
 
   useEffect(() => {
@@ -262,10 +410,7 @@ export default function Experience() {
 
   // Handle User Speaks button toggle
   const handleToggleListening = () => {
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
+    stopAllAudio();
 
     if (isListening) {
       if (recognitionRef.current) {
@@ -273,20 +418,21 @@ export default function Experience() {
       }
       setIsListening(false);
       setActiveStage(0);
-      setStatusText('Microphone paused');
+      setStatusText(
+        language === 'hi-IN' ? 'माइक बंद किया गया' : 'Microphone paused'
+      );
     } else {
       if (recognitionRef.current) {
         try {
+          recognitionRef.current.lang = language === 'hi-IN' ? 'hi-IN' : 'en-US';
           recognitionRef.current.start();
         } catch {
-          // If already running
           recognitionRef.current.stop();
           setTimeout(() => recognitionRef.current.start(), 200);
         }
       } else {
-        // Fallback if browser SpeechRecognition is disabled
-        const randomPrompt =
-          QUICK_PROMPTS[Math.floor(Math.random() * QUICK_PROMPTS.length)];
+        const prompts = language === 'hi-IN' ? QUICK_PROMPTS_HI : QUICK_PROMPTS_EN;
+        const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         processUserInput(randomPrompt);
       }
     }
@@ -299,6 +445,8 @@ export default function Experience() {
       setTextInput('');
     }
   };
+
+  const activePrompts = language === 'hi-IN' ? QUICK_PROMPTS_HI : QUICK_PROMPTS_EN;
 
   return (
     <section id="experience" className="py-24 sm:py-32 relative z-10">
@@ -370,7 +518,7 @@ export default function Experience() {
 
                 {/* Deep Technical Description */}
                 <p className="text-sm text-[#9AAEC2] leading-relaxed mb-8">
-                  Developed event-driven workflows, session management, and DAG-based pipeline execution using Python, FastAPI, and Pipecat. Integrated Groq LLM, Cartesia TTS, and Deepgram Streaming STT to enable low-latency, real-time voice experiences.
+                  Developed event-driven workflows, session management, and DAG-based pipeline execution using Python, FastAPI, and Pipecat. Integrated Groq LLM, Sarvam AI TTS (Priya Female Voice), and Deepgram Streaming STT to enable low-latency, real-time voice experiences.
                 </p>
 
                 {/* Technologies Used Pills */}
@@ -387,6 +535,9 @@ export default function Experience() {
                         {tech}
                       </span>
                     ))}
+                    <span className="px-3 py-1 text-xs font-mono rounded-lg bg-[#071333] text-[#FF9E0B] border border-[#FF9E0B]/30 font-medium">
+                      Sarvam AI
+                    </span>
                   </div>
                 </div>
               </div>
@@ -404,8 +555,8 @@ export default function Experience() {
 
             {/* Right Column: Live Voice Pipeline Experience */}
             <div className="lg:col-span-7 flex flex-col space-y-4">
-              {/* Right Top Badges Matching Reference */}
-              <div className="flex items-center justify-between">
+              {/* Right Top Badges & Language Toggle Matching Reference */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0d2258]/80 border border-[#57B6FF]/40 text-xs font-mono text-[#57B6FF]">
                     <Sparkles className="w-3.5 h-3.5 text-[#57B6FF]" />
@@ -413,6 +564,40 @@ export default function Experience() {
                       REAL-TIME VOICE AI
                     </span>
                   </div>
+
+                  {/* Hindi & English Language Switcher */}
+                  <div className="inline-flex items-center rounded-lg bg-black/40 border border-white/15 p-0.5 text-xs font-mono">
+                    <Languages className="w-3 h-3 text-[#57B6FF] ml-1.5 mr-1" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        stopAllAudio();
+                        setLanguage('en-IN');
+                      }}
+                      className={`px-2.5 py-1 rounded-md transition-all ${
+                        language === 'en-IN'
+                          ? 'bg-[#57B6FF] text-[#020b22] font-bold shadow-sm'
+                          : 'text-[#9AAEC2] hover:text-white'
+                      }`}
+                    >
+                      English
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        stopAllAudio();
+                        setLanguage('hi-IN');
+                      }}
+                      className={`px-2.5 py-1 rounded-md transition-all ${
+                        language === 'hi-IN'
+                          ? 'bg-[#57B6FF] text-[#020b22] font-bold shadow-sm'
+                          : 'text-[#9AAEC2] hover:text-white'
+                      }`}
+                    >
+                      हिंदी
+                    </button>
+                  </div>
+
                   <a
                     href="#contact"
                     className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
@@ -443,9 +628,14 @@ export default function Experience() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-[#00E599]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E599]" />
-                    <span className="text-[11px]">~ Real-time</span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#FF9E0B]/15 text-[#FF9E0B] border border-[#FF9E0B]/30">
+                      Priya Voice ({language === 'hi-IN' ? 'Hindi' : 'English'})
+                    </span>
+                    <div className="flex items-center gap-1.5 text-[#00E599]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00E599]" />
+                      <span className="text-[11px]">~ Real-time</span>
+                    </div>
                   </div>
                 </div>
 
@@ -462,7 +652,7 @@ export default function Experience() {
                         }`}
                         title={
                           speechSupported
-                            ? 'Click to speak via microphone'
+                            ? `Click to speak (${language === 'hi-IN' ? 'Hindi' : 'English'})`
                             : 'Click to simulate user speech'
                         }
                         aria-label="User Speaks button"
@@ -477,7 +667,9 @@ export default function Experience() {
                         <div className="font-['Share_Tech_Mono'] text-xs font-semibold text-white">
                           User Speaks
                         </div>
-                        <div className="text-[10px] text-[#8aa8cf]">Audio Input</div>
+                        <div className="text-[10px] text-[#8aa8cf]">
+                          {language === 'hi-IN' ? 'हिंदी ऑडियो' : 'Audio Input'}
+                        </div>
                       </div>
                     </div>
 
@@ -540,9 +732,11 @@ export default function Experience() {
                       </div>
                       <div className="text-center">
                         <div className="font-['Share_Tech_Mono'] text-xs font-semibold text-white">
-                          Groq LLM
+                          Groq Qwen
                         </div>
-                        <div className="text-[10px] text-[#c084fc]">Qwen 3.8-27B</div>
+                        <div className="text-[10px] text-[#c084fc]">
+                          {language === 'hi-IN' ? 'हिंदी LLM' : 'Process & Reason'}
+                        </div>
                       </div>
                     </div>
 
@@ -558,21 +752,26 @@ export default function Experience() {
                       <span className="wave-bar" />
                     </div>
 
-                    {/* Node 4: Cartesia TTS */}
+                    {/* Node 4: Sarvam AI Female Voice TTS */}
                     <div className="flex flex-col items-center gap-2 shrink-0">
                       <div
                         className={`pipeline-node ${
                           activeStage === 4 ? 'active' : ''
                         }`}
-                        title="Cartesia Ultra-Fast TTS"
+                        style={
+                          activeStage === 4
+                            ? { borderColor: '#FF9E0B', boxShadow: '0 0 25px rgba(255,158,11,0.8)' }
+                            : {}
+                        }
+                        title="Sarvam AI - Priya (Female Voice)"
                       >
-                        <Volume2 className="w-5 h-5 text-[#8cc8ff]" />
+                        <Volume2 className="w-5 h-5 text-[#FFB020]" />
                       </div>
                       <div className="text-center">
-                        <div className="font-['Share_Tech_Mono'] text-xs font-semibold text-white">
-                          Cartesia
+                        <div className="font-['Share_Tech_Mono'] text-xs font-semibold text-[#FFB020]">
+                          Sarvam AI
                         </div>
-                        <div className="text-[10px] text-[#8aa8cf]">Text to Speech</div>
+                        <div className="text-[10px] text-[#ffd280]">Priya (Female)</div>
                       </div>
                     </div>
 
@@ -632,13 +831,13 @@ export default function Experience() {
                     <div className="text-xs font-mono">
                       <span className="text-white font-medium">
                         {isListening
-                          ? 'Listening...'
+                          ? language === 'hi-IN' ? 'सुन रहे हैं...' : 'Listening...'
                           : isSpeaking
-                          ? 'Speaking...'
-                          : 'Click to Speak'}
+                          ? language === 'hi-IN' ? 'बोल रहे हैं...' : 'Speaking...'
+                          : language === 'hi-IN' ? 'बोलने के लिए क्लिक करें' : 'Click to Speak'}
                       </span>
                       <div className="text-[10px] text-[#8aa8cf]">
-                        Browser Speech API
+                        {language === 'hi-IN' ? 'Sarvam AI (हिंदी वॉयस)' : 'Sarvam AI (English Voice)'}
                       </div>
                     </div>
                   </div>
@@ -665,7 +864,12 @@ export default function Experience() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => setVoiceEnabled((prev) => !prev)}
+                      onClick={() => {
+                        if (voiceEnabled) {
+                          stopAllAudio();
+                        }
+                        setVoiceEnabled((prev) => !prev);
+                      }}
                       className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[#8aa8cf] hover:text-white transition-colors"
                       title={voiceEnabled ? 'Mute AI Voice' : 'Enable AI Voice'}
                     >
@@ -685,14 +889,16 @@ export default function Experience() {
                 {/* AI Dialogue Transcript Bubble */}
                 <div className="space-y-2 pt-1">
                   <div className="text-[11px] font-mono uppercase tracking-wider text-[#7ea5d9] flex items-center justify-between">
-                    <span>Active Transcript (Qwen on Groq LPU)</span>
+                    <span>Active Transcript (Qwen on Groq & Sarvam AI)</span>
                     {isSpeaking && (
-                      <span className="text-[#00E599] animate-pulse">● Audio Streaming</span>
+                      <span className="text-[#00E599] animate-pulse">
+                        ● Audio Streaming ({language === 'hi-IN' ? 'Hindi' : 'English'})
+                      </span>
                     )}
                   </div>
                   <div className="p-3.5 rounded-xl bg-[#061230]/70 border border-[#57B6FF]/15 text-xs text-[#dbe8fa] leading-relaxed font-sans">
                     <span className="font-mono text-[#A855F7] font-semibold mr-1.5">
-                      AI:
+                      AI ({language === 'hi-IN' ? 'प्रिया' : 'Priya'}):
                     </span>
                     {aiResponse}
                   </div>
@@ -701,12 +907,18 @@ export default function Experience() {
                 {/* Quick Prompts Bar & Fallback Text Input */}
                 <div className="space-y-2 pt-2 border-t border-white/10">
                   <div className="text-[10px] font-mono text-[#8aa8cf] flex items-center justify-between">
-                    <span>Quick Questions for the Pipeline:</span>
-                    <span className="text-[10px] text-[#57B6FF]/80">Powered by Qwen on Groq</span>
+                    <span>
+                      {language === 'hi-IN'
+                        ? 'पाइपलाइन के लिए त्वरित प्रश्न (Hindi):'
+                        : 'Quick Questions for the Pipeline (English):'}
+                    </span>
+                    <span className="text-[10px] text-[#FF9E0B]">
+                      Sarvam AI • Priya Voice
+                    </span>
                   </div>
 
                   <div className="flex flex-wrap gap-1.5">
-                    {QUICK_PROMPTS.map((prompt) => (
+                    {activePrompts.map((prompt) => (
                       <button
                         key={prompt}
                         type="button"
@@ -724,7 +936,11 @@ export default function Experience() {
                       type="text"
                       value={textInput}
                       onChange={(e) => setTextInput(e.target.value)}
-                      placeholder="Ask the AI voice pipeline anything..."
+                      placeholder={
+                        language === 'hi-IN'
+                          ? 'एआई वॉयस पाइपलाइन से हिंदी में कुछ भी पूछें...'
+                          : 'Ask the AI voice pipeline anything...'
+                      }
                       className="flex-1 px-3 py-1.5 rounded-lg bg-[#020818] border border-white/10 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[#57B6FF] transition-colors"
                     />
                     <button
@@ -732,7 +948,7 @@ export default function Experience() {
                       className="px-3 py-1.5 rounded-lg bg-[#0b276d] border border-[#57B6FF]/40 text-xs text-[#57B6FF] hover:bg-[#57B6FF] hover:text-[#020b22] font-mono flex items-center gap-1 transition-all"
                     >
                       <Send className="w-3 h-3" />
-                      <span>Send</span>
+                      <span>{language === 'hi-IN' ? 'भेजें' : 'Send'}</span>
                     </button>
                   </form>
                 </div>
