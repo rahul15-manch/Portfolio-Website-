@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahul Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: rgb(0, 0, 33);
+            color: white;
+        }
+        nav {
+    position: fixed;       /* Keeps the navbar fixed at the top */
+    top: 0;                /* Aligns to the top of the window */
+    left: 0;               /* Aligns to the left of the window */
+    width: 100%;           /* Makes the navbar full-width */
+    z-index: 1000;         /* Ensures it stays above other content */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10%;
+    background-color: rgb(18, 18, 62);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); /* Adds a subtle shadow */
+}
+main {
+    padding-top: 80px; /* Adjust this based on navbar height */
+}
+
+        nav h2 {
+            font-size: 24px;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        nav ul li {
+            cursor: pointer;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        nav ul li a:hover {
+            color: #6a5acd; /* Soft purple hover effect */
+            font-size: 1.1rem;
+        }
+        .firstsection {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 80vh;
+            text-align: left;
+            padding: 20px;
+        }
+        .leftsection {
+            font-size: 24px;
+            width: 50%;
+            padding-left: 50px;
+        }
+        .rightsection img {
+            max-width: 100%;
+            width: 400px;
+            height: auto;
+            margin-left: 20px;
+        }
+        .purple {
+            color: #6a5acd; 
+        }
+        #element{
+            color: #6a5acd;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Additional Sections */
+        .about-section, .projects-section, .contact-section {
+            padding: 60px 10%;
+            text-align: center;
+        }
+        .about-section h2, .projects-section h2, .contact-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #6a5acd;
+        }
+        .about-section p, .projects-section p {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .projects-section ul {
+    list-style: none;
+    display: flex;
+    justify-content: center; /* Center the items */
+    gap: 15px; /* Adjust spacing between projects */
+    margin-top: 10px; /* Reduce top margin */
+    padding: 0;
+}
+
+.projects-section ul li {
+    background-color: #12123e;
+    padding: 15px; /* Adjust padding to avoid excessive spacing */
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    text-align: center;
+    flex: 1; /* Ensures equal width distribution */
+    max-width: 300px; /* Optional: Set a max-width for better responsiveness */
+}
+
+.projects-section ul li:hover {
+    transform: translateY(-5px);
+}
+
+/* Improve visibility */
+#certifications {
+   
+    padding: 4rem 0;
+    text-align: center;
+}
+
+/* Make text darker and bold */
+#certifications h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #6a5acd; /* Darker color for better visibility */
+    margin-bottom: 1rem;
+}
+
+#certifications p {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;; /* Dark gray for contrast */
+}
+
+/* Adjust certificate link */
+#certifications a {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #4f46e5; /* A deeper purple for contrast */
+    text-decoration: none;
+}
+
+#certifications a:hover {
+    text-decoration: underline;
+}
+
+#contactForm{
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #1d1d5b;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    margin: auto;
+}
+
+
+#contactForm h2 {
+    color: #dbd9e7;
+    margin-bottom: 20px;
+    padding: auto;
+}
+
+#contactForm form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#contactForm input, 
+#contactForm textarea {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+#contactForm input:focus, 
+#contactForm textarea:focus {
+    outline: none;
+    background-color: #444;
+}
+
+#contactForm button {
+    padding: 12px 25px;
+    background-color: #6a5acd;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+#contactForm button:hover {
+    background-color: #5545a3;
+}
+#responseMsg {
+    color: #ff0;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.certifications-section {
+align-items: center;
+ }
+        
+        @keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* Apply animations */
+.rightsection img {
+    animation: fadeIn 1.5s ease-in-out, float 3s ease-in-out infinite;
+}
+
+/* Animation for project images if any */
+.projects-section ul li img {
+    animation: fadeIn 1.5s ease-in-out, float 3s ease-in-out infinite;
+}
+@keyframes flipFade {
+    0% {
+        transform: rotateX(0deg);
+        opacity: 0.3;
+    }
+    50% {
+        transform: rotateX(180deg);
+        opacity: 1;
+    }
+    100% {
+        transform: rotateX(360deg);
+        opacity: 0.3;
+    }
+}
+
+.animated-text {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #6a5acd;
+    text-shadow: 0px 0px 10px rgba(106, 90, 205, 0.7);
+    animation: flipFade 4s infinite ease-in-out;
+    transform-origin: center;
+}
+
+ /* Scroll to Top Button */
+ .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            background-color: #ff8c00;
+        }
+
+        .scroll-to-top.visible {
+            display: block;
+        }
+
+
+        /*CSS  of Language and skill*/
+        /* Skills Section */
+/* Skills Section */
+/* Skills Section */
+#skills {
+    text-align: center;
+    padding: 50px 20px;
+     
+    color: #fff;
+}
+
+#skills h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #6a5acd ; 
+    font-weight: bold;
+}
+
+/* Skills Container */
+.skills-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+/* Individual Skill Box */
+.skill {
+     /* Slightly lighter dark shade */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 350px;
+    transition: transform 0.3s ease-in-out;
+    border: 2px solid #f8f9fa;
+}
+
+.skill:hover {
+    transform: translateY(-10px);
+    border-color: #f8f9fa;
+}
+
+/* Skill Titles */
+.skill h3 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    color: #6a5acd; /* Vibrant blue */
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Skill List */
+.skill ul {
+    list-style: none;
+    padding: 0;
+}
+
+.skill li {
+    font-size: 1.2em;
+    margin: 8px 0;
+    color: #f8f9fa;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* Icons Styling */
+.skill li i {
+    margin-right: 10px;
+    color: #f8f9fa; /* Matching blue icons */
+    font-size: 1.4em;
+}
+
+/* Library Image Icons */
+.lib-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <h2>Rahul Portfolio</h2>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li> <a href="#skills"> Languages & Skills</a></li> 
+                <li><a href="#certifications">Certifications</a></li>
+                <li><a href="#contactForm">Contact</a></li>
+              
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Home Section -->
+        <section class="firstsection" id="home">
+            <div class="leftsection">
+                <h1>Hi, My Name is <span class="purple">Rahul</span></h1>
+                <h2>I'm a <span id="element"></span></h2>
+
+            </div>
+            <div class="rightsection">
+                <img src="bg.webp" alt="Data Analysis Illustration">
+            </div>
+        </section>
+
+        <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script>
+    var typed = new Typed("#element", {
+        strings: ["Data Enthusiast", " Aspiring AI Engineer", "Machine Learning Aspirant", "Problem Solver"],
+        typeSpeed: 50,
+        backSpeed: 30,
+        loop: true
+    });
+</script>
+
+
+        <section class="about-section" id="about">
+            <h2>About Me</h2>
+            <p>
+                I am a <span class="animated-text">Data Enthusiast and  Aspiring AI Engineer</span> with a strong passion for uncovering insights from data 
+                and building AI-powered solutions. With expertise in "data analysis, machine learning, and AI-driven automation", I love 
+                turning complex datasets into meaningful business insights.
+            </p>
+            <p>
+                My journey in data science and artificial intelligence has allowed me to work on various projects, including 
+                predictive modeling, recommendation systems, and advanced data visualization. I am always eager to learn and explore new 
+                technologies that drive innovation.
+            </p>
+        </section>
+        
+
+        <!-- Projects Section -->
+        <section class="projects-section" id="projects">
+            <h2>My Projects</h2>
+            <p>Here are a few of my favorite projects that showcase my skills in data analysis, machine learning, and AI engineering.</p>
+            <ul>
+                <li>
+                    <h3>Project 1</h3>
+                    <p>Workforce Dynamics : HR Vision Insights  </p>
+                        <a href="Project1.html" target="_blank" style="color: #6a5acd;  font-weight: bold;">
+                            View Project
+                        </a>
+                    
+                </li>
+                
+                <li>
+                    <h3>Project 2</h3>
+                    <p>Plotting various graph using Seaborn library</p>
+                    <a href="Project2.html"target="_blank" style="color: #6a5acd;font-weight: bold;">
+                        View Project 
+                    </a>
+                </li>
+                <li>
+                    <h3>Project 3</h3>
+                    <p>Blinkit Dashboard - Power BI </p>
+                    <a href="Project 3.html" target="_blank" style="color: #6a5acd;font-weight: bold;">
+                        View Project
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <section id="skills">
+    <h2>Languages & Skills</h2>
+    <div class="skills-container">
+        <!-- Programming Languages -->
+        <div class="skill">
+            <h3><i class="fas fa-code"></i> Programming Languages</h3>
+            <ul>
+                <li><i class="fab fa-python"></i> Python</li>
+                <li><i class="fas fa-c"></i> C++</li>
+                <li><i class="fab fa-html5"></i> HTML</li>
+                <li><i class="fab fa-css3-alt"></i> CSS</li>
+                <li><i class="fas fa-chart-bar"></i> Power BI</li>
+            </ul>
+        </div>
+
+        <!-- Frameworks & Libraries -->
+        <div class="skill">
+            <h3><i class="fas fa-tools"></i> Frameworks & Libraries</h3>
+            <ul>
+                <li><img src="https://numpy.org/images/logo.svg" alt="Numpy" class="lib-icon"> Numpy</li>
+                <li><img src="https://pandas.pydata.org/static/img/pandas_mark.svg" alt="Pandas" class="lib-icon"> Pandas</li>
+                <li><img src="https://seaborn.pydata.org/_static/logo-wide-lightbg.svg" alt="Seaborn" class="lib-icon"> Seaborn</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+
+<!--Certifications-->
+<section id="certifications" class="py-12 bg-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Certifications</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Certification Card -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-700">Data Analytics Internship</h3>
+                <p class="text-gray-500" href="C:\Users\OASIS\Desktop\Grades Global Immigration - Best Immigration Consultants.html">Global Grades  | September  2024</p>
+                <a href="C:\Users\OASIS\Downloads\Rahul_certificate.png" target="_blank" class="text-blue-600 font-medium hover:underline">View Certificate</a>
+            </div>
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-700">AR-VR Workshop</h3>
+                <p class="text-gray-500" href="C:\Users\OASIS\Downloads\Screenshot (122).png">Creater of Metaverse|October 2023</p>
+                <a href="C:\Users\OASIS\Downloads\Screenshot (122).png" target="_blank" class="text-blue-600 font-medium hover:underline">View Certificate</a>
+            </div>
+    </div>
+     <div class="bg-white shadow-lg rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-700">NLP Workshop</h3>
+                <p class="text-gray-500" href="C:\Users\OASIS\Downloads\Screenshot (122).png">Department of CSE(AI & ML) |March 2025</p>
+                <a href="C:\Users\OASIS\Downloads\94820052-63b9-4266-933d-4ac8f13b54bf.png" target="_blank" class="text-blue-600 font-medium hover:underline">View Certificate</a>
+            </div>
+    </div>
+</section>
+
+
+<!-- Contact Section -->
+<form id="contactForm" action="https://formspree.io/f/mnnpbbzd" method="post">
+    <h2><b>Query Form </b></h2>
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="email" placeholder="Your Email" required>
+    <textarea id="message" placeholder="Your Message" rows="4" required></textarea>
+    <button type="submit">Send Message</button>
+    <p id="responseMsg"></p>
+</form>
+<script>document.querySelector("form").addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    let formData = {
+        name: document.querySelector("#name").value,
+        email: document.querySelector("#email").value,
+        message: document.querySelector("#message").value
+    };
+
+    fetch("https://formspree.io/f/mnnpbbzd", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Form submission failed");
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert("Form submitted successfully!");
+    })
+    .catch(error => {
+        alert("Error submitting form: " + error.message);
+    });
+});
+</script>
+
+   
+
+
+</body>
+</html>
+
+
+    <div class="social-links">
+        <h3>Connect with Me</h3>
+        <div class="links">
+            <a href="https://www.instagram.com/rahulmanchanda015/?__pwa=1" target="_blank" class="social-link instagram">
+                <i class="fab fa-instagram"></i> Instagram
+            </a>
+            <a href="https://www.linkedin.com/in/rahul-manchanda-3959b120a/" target="_blank" class="social-link linkedin">
+                <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a href="https://github.com/rahul15-manch/Dashboard" target="_blank" class="social-link github">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+        </div>
+    </div>
+
+   
+      <!-- Scroll to Top Button -->
+      <button class="scroll-to-top" id="scrollToTopBtn">↑ Back to Top</button>
+
+      <script>
+          // Scroll to top button functionality
+          const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+  
+          window.onscroll = function() {
+              if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                  scrollToTopBtn.classList.add("visible");
+              } else {
+                  scrollToTopBtn.classList.remove("visible");
+              }
+          };
+  
+          scrollToTopBtn.onclick = function() {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+      </script>
+    
+    
+<style>
+    .social-links {
+        margin-top: 30px;
+    }
+
+    .social-links h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #fff;
+        text-align: center;
+    }
+
+    .links {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: white;
+        background-color: #333;
+        border-radius: 30px;
+        text-transform: uppercase;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .social-link i {
+        margin-right: 10px;
+        font-size: 20px;
+    }
+
+    .social-link:hover {
+        transform: translateY(-5px);
+        background-color: #6a5acd;
+    }
+
+    .instagram {
+        background-color: #e4405f;
+    }
+
+    .instagram:hover {
+        background-color: #c13584;
+    }
+
+    .linkedin {
+        background-color: #0077b5;
+    }
+
+    .linkedin:hover {
+        background-color: #006097;
+        .github {
+    background-color: #333;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.github:hover {
+    background-color: #6e5494;
+    transform: translateY(-5px);
+}
+
+    }
+</style>
+
+<!-- Add this link to the head section to include FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+
+
+
