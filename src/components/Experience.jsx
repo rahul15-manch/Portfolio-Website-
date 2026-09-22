@@ -33,7 +33,7 @@ export default function Experience() {
   // Language mode: 'en-IN' (English) or 'hi-IN' (Hindi)
   const [language, setLanguage] = useState('en-IN');
 
-  // Pipeline stage: 0 = Idle, 1 = User Speaks, 2 = Deepgram STT, 3 = Qwen Reasoning, 4 = Sarvam TTS, 5 = AI Responds
+  // Pipeline stage: 0 = Idle, 1 = User Speaks, 2 = Deepgram STT, 3 = Qwen Reasoning, 4 = Cartesia TTS, 5 = AI Responds
   const [activeStage, setActiveStage] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -127,7 +127,7 @@ export default function Experience() {
     [voiceEnabled]
   );
 
-  // Sarvam AI Text-to-Speech with Female Voice (Priya)
+  // Sarvam AI Text-to-Speech (Secondary Fallback Voice)
   const speakWithSarvam = useCallback(
     async (text, targetLang, onFinish) => {
       if (!voiceEnabled) {
@@ -149,7 +149,7 @@ export default function Experience() {
         setStatusText(
           targetLang === 'hi-IN'
             ? 'सर्वम एआई (प्रिया वॉयस) - ऑडियो तैयार हो रहा है...'
-            : 'Sarvam AI (Priya Female Voice) - Generating audio...'
+            : 'Sarvam AI (Priya Voice) - Generating fallback audio...'
         );
 
         const controller = new AbortController();
@@ -218,6 +218,106 @@ export default function Experience() {
     [voiceEnabled, speakWithBrowserVoice]
   );
 
+  // Cartesia AI Text-to-Speech (Primary Ultra-Low Latency Neural Voice)
+  const speakWithCartesia = useCallback(
+    async (text, targetLang, onFinish) => {
+      if (!voiceEnabled) {
+        if (onFinish) onFinish();
+        return;
+      }
+
+      stopAllAudio();
+
+      const cartesiaKey = import.meta.env.VITE_CARTESIA_API_KEY || '';
+      const voiceId =
+        import.meta.env.VITE_CARTESIA_VOICE_ID || '4459a9a5-69d6-4680-b970-e13dc51845b6';
+
+      if (!cartesiaKey) {
+        speakWithSarvam(text, targetLang, onFinish);
+        return;
+      }
+
+      try {
+        setActiveStage(4);
+        setStatusText(
+          targetLang === 'hi-IN'
+            ? 'कार्टेशिया सोनिक: न्यूरल ऑडियो तैयार हो रहा है...'
+            : 'Cartesia TTS (Sonic): Generating neural speech...'
+        );
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+        const response = await fetch('https://api.cartesia.ai/tts/bytes', {
+          method: 'POST',
+          headers: {
+            'X-API-Key': cartesiaKey,
+            'Cartesia-Version': '2024-11-13',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model_id: 'sonic-3.6',
+            transcript: text.slice(0, 500),
+            voice: {
+              mode: 'id',
+              id: voiceId,
+            },
+            output_format: {
+              container: 'wav',
+              encoding: 'pcm_s16le',
+              sample_rate: 44100,
+            },
+            language: targetLang === 'hi-IN' ? 'hi' : 'en',
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          const audio = new Audio(audioUrl);
+          audioRef.current = audio;
+
+          audio.onplay = () => {
+            setIsSpeaking(true);
+            setActiveStage(5);
+            setStatusText(
+              targetLang === 'hi-IN'
+                ? 'कार्टेशिया सोनिक: ऑडियो स्ट्रीमिंग...'
+                : 'Cartesia Sonic: Neural voice streaming...'
+            );
+          };
+
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            setIsSpeaking(false);
+            setActiveStage(0);
+            setStatusText('Ready for next conversation');
+            if (onFinish) onFinish();
+          };
+
+          audio.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            console.warn('Cartesia playback error, falling back to Sarvam AI');
+            speakWithSarvam(text, targetLang, onFinish);
+          };
+
+          await audio.play();
+          return;
+        } else {
+          console.warn('Cartesia API non-200 response, status:', response.status);
+        }
+      } catch (err) {
+        console.warn('Cartesia TTS failed, falling back to Sarvam AI:', err);
+      }
+
+      // Fallback to Sarvam AI if Cartesia fails
+      speakWithSarvam(text, targetLang, onFinish);
+    },
+    [voiceEnabled, speakWithSarvam]
+  );
+
   // Initialize SpeechRecognition on mount if available
   useEffect(() => {
     const SpeechRecognition =
@@ -273,29 +373,59 @@ export default function Experience() {
     const q = query.toLowerCase();
 
     if (lang === 'hi-IN') {
-      if (q.includes('cybernauts') || q.includes('साइबरनॉट्स') || q.includes('काम') || q.includes('प्रोजेक्ट')) {
-        return 'मैंने साइबरनॉट्स में फास्टएपीआई और पाइपकेट के साथ लो-लेटेंसी रियल-टाइम वॉयस आर्केस्ट्रेशन फ्रेमवर्क विकसित किया है।';
+      if (q.includes('carestance') || q.includes('केयरस्टांस')) {
+        return 'CareStance मेरा AI करियर असेसमेंट प्लेटफॉर्म है जिसमें 4-फेज पर्सनैलिटी क्लासिफिकेशन, जेमिनी चैटबॉट और रेजरपे इंटीग्रेशन शामिल है।';
+      }
+      if (q.includes('hire wise') || q.includes('hirewise') || q.includes('इंटरव्यू') || q.includes('interview')) {
+        return 'Hire Wise एक ऑटोमेटेड AI इंटरव्यू प्लेटफॉर्म है जिसे मैंने Groq Llama 3.3 70B और AI प्रॉक्टरिंग के साथ तैयार किया है।';
+      }
+      if (q.includes('phishing') || q.includes('फिशिंग') || q.includes('security') || q.includes('सिक्योरिटी')) {
+        return 'मैंने Scikit-learn, MLflow और Docker के साथ नेटवर्क ट्रैफिक आधारित एंड-टू-एंड फ़िशिंग डिटेक्शन ML पाइपलाइन बनाई है।';
+      }
+      if (q.includes('cybernauts') || q.includes('साइबरनॉट्स') || q.includes('intern') || q.includes('काम')) {
+        return 'मैंने साइबरनॉट्स में FastAPI और Pipecat के साथ लो-लेटेंसी रियल-टाइम वॉयस आर्केस्ट्रेशन फ्रेमवर्क विकसित किया है।';
+      }
+      if (q.includes('college') || q.includes('education') || q.includes('पढ़ाई') || q.includes('piet') || q.includes('cgpa')) {
+        return 'मैं पानीपत इंस्टीट्यूट ऑफ इंजीनियरिंग एंड टेक्नोलॉजी से AIML में B.Tech (2023-2027) कर रहा हूँ, मेरा CGPA 7.66 है।';
+      }
+      if (q.includes('leetcode') || q.includes('github') || q.includes('achievement') || q.includes('hackathon') || q.includes('sih')) {
+        return 'मैंने LeetCode पर 300+ सवाल हल किए हैं, पिछले साल 700+ GitHub कॉन्ट्रिब्यूशन किए हैं और Smart India Hackathon में हिस्सा लिया है।';
       }
       if (q.includes('pipeline') || q.includes('पाइपलाइन') || q.includes('आवाज') || q.includes('voice')) {
         return 'यह वॉयस सिस्टम डीपग्राम से स्पीच-टू-टेक्स्ट, ग्रोक एलएलएम से प्रोसेसिंग और सर्वम एआई से 300 मिलीसेकंड में आवाज उत्पन्न करता है।';
       }
-      if (q.includes('skill') || q.includes('टूल') || q.includes('मॉडल') || q.includes('stack')) {
-        return 'मैं मशीन लर्निंग, जनरेटिव एआई, लैंगचेन, फास्टएपीआई और डॉकर जैसे आधुनिक टूल्स में विशेषज्ञता रखता हूँ।';
+      if (q.includes('skill') || q.includes('टूल') || q.includes('मॉडल') || q.includes('stack') || q.includes('तकनीक')) {
+        return 'मैं Python, FastAPI, LangChain, React, Docker, MLflow, Pinecone और रियल-टाइम LLM आर्केस्ट्रेशन में दक्ष हूँ।';
       }
-      return 'नमस्ते! मैं राहुल मनचंदा का एआई प्रतिनिधि हूँ। आप मुझसे राहुल के अनुभव, प्रोजेक्ट्स या टेक्निकल स्किल्स के बारे में पूछ सकते हैं।';
+      return 'नमस्ते! मैं राहुल मनचंदा का एआई प्रतिनिधि हूँ। आप मुझसे राहुल के अनुभव, प्रोजेक्ट्स जैसे CareStance व Hire Wise या टेक्निकल स्किल्स के बारे में पूछ सकते हैं।';
     }
 
     // English Fallbacks
-    if (q.includes('cybernauts') || q.includes('intern') || q.includes('flowise')) {
-      return 'At CyberNauts, I built an event-driven AI orchestration framework using FastAPI and Pipecat to execute DAG voice pipelines with ultra-low latency.';
+    if (q.includes('carestance')) {
+      return 'CareStance is an AI career platform I built featuring a 4-phase assessment pipeline, personality archetypes, and a Gemini/Groq chatbot with Redis caching.';
+    }
+    if (q.includes('hire wise') || q.includes('hirewise') || q.includes('interview')) {
+      return 'Hire Wise is an AI recruitment platform I built using Groq Llama 3.3 70B for automated technical question generation, evaluation, and AI proctoring.';
+    }
+    if (q.includes('phishing') || q.includes('security')) {
+      return 'I built an end-to-end ML phishing detection pipeline using Scikit-learn on network traffic data, containerized with Docker and tracked via MLflow.';
+    }
+    if (q.includes('cybernauts') || q.includes('flowise') || q.includes('intern')) {
+      return 'At CyberNauts, I built an event-driven AI orchestration framework using FastAPI and Pipecat to execute DAG voice pipelines with Groq, Cartesia, and Deepgram.';
+    }
+    if (q.includes('college') || q.includes('education') || q.includes('university') || q.includes('piet') || q.includes('degree') || q.includes('cgpa')) {
+      return 'I am pursuing B.Tech in CSE (Artificial Intelligence & Machine Learning) at Panipat Institute of Engineering & Technology (2023-2027) with a 7.66 CGPA.';
+    }
+    if (q.includes('leetcode') || q.includes('github') || q.includes('achievement') || q.includes('hackathon') || q.includes('sih')) {
+      return 'I have solved 300+ LeetCode problems, made 700+ GitHub contributions in the past year, and was selected for the Smart India Hackathon.';
     }
     if (q.includes('pipeline') || q.includes('voice') || q.includes('deepgram') || q.includes('cartesia') || q.includes('sarvam')) {
       return 'The voice pipeline streams incoming audio through Deepgram for transcription, reasons with Groq Qwen LLM, and synthesizes speech via Sarvam AI in under 300ms.';
     }
-    if (q.includes('model') || q.includes('tool') || q.includes('tech') || q.includes('stack')) {
-      return 'I specialize in Generative AI architectures, LangChain, FastAPI, Docker, and fine-tuned open-source models like Qwen and LLaMA.';
+    if (q.includes('model') || q.includes('tool') || q.includes('tech') || q.includes('stack') || q.includes('skill')) {
+      return 'My core stack includes Python, FastAPI, LangChain, React, Docker, MLflow, vector databases like Pinecone and ChromaDB, and real-time LLM pipelines.';
     }
-    return 'As an AI Engineer, I develop real-time LLM architectures and scalable backend microservices with Python, FastAPI, and modern AI models.';
+    return 'As an AI Engineer, I specialize in Generative AI architectures, real-time voice orchestration, and scalable microservices with Python and FastAPI.';
   };
 
   // Process user input through the 5-stage pipeline
@@ -324,8 +454,8 @@ export default function Experience() {
 
     const systemPrompt =
       language === 'hi-IN'
-        ? 'You are the personal AI assistant for Rahul Manchanda, an aspiring AI Engineer skilled in Machine Learning and real-time voice orchestration. Rahul interned at CyberNauts on the Flowise Project. Answer the user in clear, natural, friendly Hindi in 1-2 short spoken sentences.'
-        : 'You are the personal AI representative for Rahul Manchanda, an aspiring AI Engineer specializing in Machine Learning, Generative AI, and AI backend engineering. Rahul interned at CyberNauts on the Flowise project, building modular real-time AI orchestration pipelines with FastAPI, Pipecat, Groq LLM, and Sarvam AI. Answer directly in 1 or 2 concise, spoken sentences suitable for voice output.';
+        ? 'You are the personal voice AI representative for Rahul Manchanda, an aspiring AI Engineer skilled in Machine Learning, Generative AI, and backend development. Rahul is pursuing B.Tech in CSE (AI & ML) at Panipat Institute of Engineering & Technology (CGPA 7.66). He interned at CyberNauts (Flowise Project) building real-time voice pipelines with FastAPI, Pipecat, Groq, Cartesia, and Deepgram. His key projects are CareStance (AI Career Assessment with Gemini/Groq and Redis), Hire Wise (AI recruitment interview platform with Groq Llama 3.3 70B), and Phishing Detection ML System (Scikit-learn, MLflow, Docker). He has 300+ LeetCode problems solved, 700+ GitHub contributions, and participated in Smart India Hackathon. Answer the user in clear, natural, friendly spoken Hindi in 1 or 2 concise sentences suitable for voice output.'
+        : 'You are the personal voice AI representative for Rahul Manchanda, an aspiring AI Engineer specializing in Machine Learning, Generative AI, and AI backend engineering. Rahul is pursuing B.Tech in CSE (AI & ML) at Panipat Institute of Engineering & Technology (CGPA: 7.66). He interned at CyberNauts (Flowise Project) developing modular real-time AI orchestration pipelines with Python, FastAPI, Pipecat, Groq LLM, Cartesia TTS, and Deepgram STT. Key projects include CareStance (AI career assessment with Gemini/Groq & Redis), Hire Wise (AI interview platform powered by Groq Llama 3.3 70B & AI proctoring), and Phishing Detection ML pipeline (Scikit-learn, MLflow, Docker). Achievements: 300+ LeetCode solved, 700+ GitHub contributions, Smart India Hackathon participant. Core skills: Python, FastAPI, LangChain, React, Docker, MLflow, Pinecone, ChromaDB. Answer directly in 1 or 2 concise, conversational spoken sentences (under 35 words) suitable for real-time voice output.';
 
     try {
       if (groqKey) {
@@ -344,7 +474,7 @@ export default function Experience() {
               { role: 'system', content: systemPrompt },
               { role: 'user', content: text },
             ],
-            max_tokens: 110,
+            max_tokens: 120,
             temperature: 0.7,
           }),
           signal: controller.signal,
@@ -391,17 +521,17 @@ export default function Experience() {
 
     setAiResponse(generatedResponse);
 
-    // Stage 4: Sarvam AI Female Voice TTS
+    // Stage 4: Cartesia Sonic Voice TTS (Primary with Sarvam AI Fallback)
     setActiveStage(4);
     setStatusText(
       language === 'hi-IN'
-        ? 'सर्वम एआई (प्रिया वॉयस): न्यूरल ऑडियो जेनरेशन...'
-        : 'Sarvam AI (Priya Female Voice): Generating neural speech...'
+        ? 'कार्टेशिया सोनिक: न्यूरल ऑडियो तैयार हो रहा है...'
+        : 'Cartesia TTS (Sonic): Generating neural speech...'
     );
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 350));
 
-    // Stage 5: AI Responds (Speaking aloud via Sarvam Priya Voice)
-    speakWithSarvam(generatedResponse, language);
+    // Stage 5: AI Responds (Speaking aloud via Cartesia -> Sarvam -> Browser)
+    speakWithCartesia(generatedResponse, language);
   };
 
   useEffect(() => {
@@ -752,7 +882,7 @@ export default function Experience() {
                       <span className="wave-bar" />
                     </div>
 
-                    {/* Node 4: Sarvam AI Female Voice TTS */}
+                    {/* Node 4: Cartesia Sonic TTS (Sarvam Fallback) */}
                     <div className="flex flex-col items-center gap-2 shrink-0">
                       <div
                         className={`pipeline-node ${
@@ -763,15 +893,15 @@ export default function Experience() {
                             ? { borderColor: '#FF9E0B', boxShadow: '0 0 25px rgba(255,158,11,0.8)' }
                             : {}
                         }
-                        title="Sarvam AI - Priya (Female Voice)"
+                        title="Cartesia TTS - Sonic Ultra Low-Latency (Sarvam AI Fallback)"
                       >
                         <Volume2 className="w-5 h-5 text-[#FFB020]" />
                       </div>
                       <div className="text-center">
                         <div className="font-['Share_Tech_Mono'] text-xs font-semibold text-[#FFB020]">
-                          Sarvam AI
+                          Cartesia TTS
                         </div>
-                        <div className="text-[10px] text-[#ffd280]">Priya (Female)</div>
+                        <div className="text-[10px] text-[#ffd280]">Sonic Engine</div>
                       </div>
                     </div>
 
@@ -837,7 +967,7 @@ export default function Experience() {
                           : language === 'hi-IN' ? 'बोलने के लिए क्लिक करें' : 'Click to Speak'}
                       </span>
                       <div className="text-[10px] text-[#8aa8cf]">
-                        {language === 'hi-IN' ? 'Sarvam AI (हिंदी वॉयस)' : 'Sarvam AI (English Voice)'}
+                        {language === 'hi-IN' ? 'Cartesia Sonic (हिंदी) • Sarvam' : 'Cartesia Sonic (Ultra-Low Latency)'}
                       </div>
                     </div>
                   </div>
@@ -898,7 +1028,7 @@ export default function Experience() {
                   </div>
                   <div className="p-3.5 rounded-xl bg-[#061230]/70 border border-[#57B6FF]/15 text-xs text-[#dbe8fa] leading-relaxed font-sans">
                     <span className="font-mono text-[#A855F7] font-semibold mr-1.5">
-                      AI ({language === 'hi-IN' ? 'प्रिया' : 'Priya'}):
+                      AI (Cartesia Voice):
                     </span>
                     {aiResponse}
                   </div>
@@ -913,7 +1043,7 @@ export default function Experience() {
                         : 'Quick Questions for the Pipeline (English):'}
                     </span>
                     <span className="text-[10px] text-[#FF9E0B]">
-                      Sarvam AI • Priya Voice
+                      Cartesia Sonic • Ultra Low-Latency
                     </span>
                   </div>
 
